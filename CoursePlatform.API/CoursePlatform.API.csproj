@@ -22,4 +22,6 @@
     <ProjectReference Include="..\CoursePlatform.Infrastructure\CoursePlatform.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties seeddata_4users_1json__JsonSchema="Hassan" /></VisualStudio></ProjectExtensions>
+
 </Project>

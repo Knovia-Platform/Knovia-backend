@@ -60,6 +60,12 @@ public class UpdateCourseCommandHandler
         course.Requirements = JsonSerializer.Serialize(request.Requirements);
         course.WhatYouLearn = JsonSerializer.Serialize(request.WhatYouLearn);
 
+        if (request.ThumbnailUrl is not null)
+            course.ThumbnailUrl = request.ThumbnailUrl;
+
+        if (request.PreviewVideoUrl is not null)
+            course.PreviewVideoUrl = request.PreviewVideoUrl;
+
         // لو كان Rejected وعدّله — يرجع Draft
         if (course.Status == CourseStatus.Rejected)
         {

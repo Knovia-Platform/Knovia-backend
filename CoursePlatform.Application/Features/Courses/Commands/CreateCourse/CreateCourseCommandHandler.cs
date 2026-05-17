@@ -52,6 +52,8 @@ public class CreateCourseCommandHandler
             SubCategoryId = request.SubCategoryId,
             InstructorId = instructorId,
             Status = CourseStatus.Draft,
+            ThumbnailUrl = request.ThumbnailUrl,  
+            PreviewVideoUrl = request.PreviewVideoUrl,
             Requirements = JsonSerializer.Serialize(request.Requirements),
             WhatYouLearn = JsonSerializer.Serialize(request.WhatYouLearn),
         };
