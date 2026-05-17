@@ -16,6 +16,7 @@ using CoursePlatform.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using CoursePlatform.Application.Contracts.Services;
 
 namespace CoursePlatform.API.Controllers;
 
@@ -25,8 +26,14 @@ public class CoursesController : ControllerBase
 {
     private readonly ISender _sender;
 
-    public CoursesController(ISender sender)
-        => _sender = sender;
+    private readonly IFileStorageService _fileStorage;
+
+    public CoursesController(ISender sender, IFileStorageService fileStorage)
+    {
+        _sender = sender;
+        _fileStorage = fileStorage;
+    }
+
 
     // ─── Public ───────────────────────────────────────────────────────────
 
@@ -57,40 +64,91 @@ public class CoursesController : ControllerBase
     public async Task<ActionResult<IReadOnlyList<CourseSummaryDto>>> GetMyCourses(
         CancellationToken ct)
         => Ok(await _sender.Send(new GetMyCoursesQuery(), ct));
+// API/Controllers/CoursesController.cs
 
-    /// <summary>Create a new course (Draft).</summary>
-    [HttpPost]
-    [Authorize(Roles = "Instructor")]
-    [ProducesResponseType(typeof(CourseDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<CourseDto>> Create(
-        [FromBody] CreateCourseCommand command,
-        CancellationToken ct)
+[HttpPost]
+[Authorize(Roles = "Instructor")]
+[Consumes("multipart/form-data")]
+[ProducesResponseType(typeof(CourseDto), StatusCodes.Status201Created)]
+public async Task<ActionResult<CourseDto>> Create(
+    [FromForm] CreateCourseRequest request,
+    CancellationToken ct)
+{
+    string? thumbnailUrl = null;
+
+    if (request.Thumbnail is not null)
     {
-        var result = await _sender.Send(command, ct);
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+     // use SaveAsync instead of UploadAsync to get the URL back
+        await using var stream = request.Thumbnail.OpenReadStream();
+
+        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.Thumbnail.FileName)}";
+
+        thumbnailUrl = await _fileStorage.SaveAsync(
+            stream,
+            fileName,
+            "thumbnails",
+            ct);
     }
 
-    /// <summary>Update course info.</summary>
-    [HttpPut("{id:int}")]
-    [Authorize(Roles = "Instructor")]
-    [ProducesResponseType(typeof(CourseDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CourseDto>> Update(
-        int id,
-        [FromBody] UpdateCourseRequest request,
-        CancellationToken ct)
-    {
-        var command = new UpdateCourseCommand(
-            id, request.Title, request.Description,
-            request.ShortDescription, request.Price,
-            request.DiscountPrice, request.Level,
-            request.Language, request.SubCategoryId,
-            request.Requirements, request.WhatYouLearn);
+    var command = new CreateCourseCommand(
+        request.Title,
+        request.Description,
+        request.ShortDescription,
+        request.Price,
+        request.Level,
+        request.Language,
+        request.SubCategoryId,
+        request.Requirements ?? [],
+        request.WhatYouLearn ?? [],
+        thumbnailUrl,
+        request.PreviewVideoUrl);
 
-        return Ok(await _sender.Send(command, ct));
+    var result = await _sender.Send(command, ct);
+    return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+}
+
+[HttpPut("{id:int}")]
+[Authorize(Roles = "Instructor")]
+[Consumes("multipart/form-data")]
+[ProducesResponseType(typeof(CourseDto), StatusCodes.Status200OK)]
+public async Task<ActionResult<CourseDto>> Update(
+    int id,
+    [FromForm] UpdateCourseRequest request,
+    CancellationToken ct)
+{
+    string? thumbnailUrl = null;
+
+    if (request.Thumbnail is not null)
+    {
+        await using var stream = request.Thumbnail.OpenReadStream();
+
+        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.Thumbnail.FileName)}";
+
+        thumbnailUrl = await _fileStorage.SaveAsync(
+            stream,
+            fileName,
+            "thumbnails",
+            ct);
     }
+
+    var command = new UpdateCourseCommand(
+        id,
+        request.Title,
+        request.Description,
+        request.ShortDescription,
+        request.Price,
+        request.DiscountPrice,
+        request.Level,
+        request.Language,
+        request.SubCategoryId,
+        request.Requirements ?? [],
+        request.WhatYouLearn ?? [],
+        thumbnailUrl,
+        request.PreviewVideoUrl);
+
+    return Ok(await _sender.Send(command, ct));
+}
+
 
     /// <summary>Delete course (Draft/Rejected only).</summary>
     [HttpDelete("{id:int}")]
@@ -173,16 +231,36 @@ public class CoursesController : ControllerBase
 }
 
 // ─── Request Models ────────────────────────────────────────────────────────
-public record UpdateCourseRequest(
-    string Title,
-    string Description,
-    string? ShortDescription,
-    decimal Price,
-    decimal? DiscountPrice,
-    CourseLevel Level,
-    string Language,
-    int SubCategoryId,
-    List<string> Requirements,
-    List<string> WhatYouLearn);
+// API/Controllers/CoursesController.cs
+public class CreateCourseRequest
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string? ShortDescription { get; set; }
+    public decimal Price { get; set; }
+    public decimal? DiscountPrice { get; set; }
+    public CourseLevel Level { get; set; }
+    public string Language { get; set; } = "English";
+    public int SubCategoryId { get; set; }
+    public List<string>? Requirements { get; set; }
+    public List<string>? WhatYouLearn { get; set; }
+    public IFormFile? Thumbnail { get; set; }  // ← File هنا بس
+    public string? PreviewVideoUrl { get; set; }
+}
 
+public class UpdateCourseRequest
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string? ShortDescription { get; set; }
+    public decimal Price { get; set; }
+    public decimal? DiscountPrice { get; set; }
+    public CourseLevel Level { get; set; }
+    public string Language { get; set; } = "English";
+    public int SubCategoryId { get; set; }
+    public List<string>? Requirements { get; set; }
+    public List<string>? WhatYouLearn { get; set; }
+    public IFormFile? Thumbnail { get; set; }  // ← File هنا بس
+    public string? PreviewVideoUrl { get; set; }
+}
 public record RejectCourseRequest(string Reason);

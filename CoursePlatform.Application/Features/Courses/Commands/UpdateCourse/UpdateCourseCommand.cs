@@ -16,4 +16,6 @@ public record UpdateCourseCommand(
     int SubCategoryId,
     List<string> Requirements,
     List<string> WhatYouLearn
+     , string? ThumbnailUrl,
+    string? PreviewVideoUrl
 ) : IRequest<CourseDto>;

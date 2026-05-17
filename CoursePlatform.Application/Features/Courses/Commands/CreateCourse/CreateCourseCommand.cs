@@ -14,4 +14,6 @@ public record CreateCourseCommand(
     int SubCategoryId,
     List<string> Requirements,
     List<string> WhatYouLearn
+    ,string? ThumbnailUrl,
+    string? PreviewVideoUrl
 ) : IRequest<CourseDto>;

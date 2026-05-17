@@ -3,6 +3,7 @@ using CoursePlatform.Application.Features.Reviews.Commands.DeleteReview;
 using CoursePlatform.Application.Features.Reviews.Commands.UpdateReview;
 using CoursePlatform.Application.Features.Reviews.DTOs;
 using CoursePlatform.Application.Features.Reviews.Queries.GetCourseReviews;
+using CoursePlatform.Application.Features.Reviews.Queries.GetInstructorReviews;
 using CoursePlatform.Application.Features.Reviews.Queries.GetMyReview;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -97,6 +98,8 @@ public class ReviewsController : ControllerBase
         await _sender.Send(new DeleteReviewCommand(reviewId), ct);
         return NoContent();
     }
+
+
 }
 
 public record CreateReviewRequest(int Rating, string Comment);
