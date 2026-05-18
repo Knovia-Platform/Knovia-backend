@@ -121,16 +121,9 @@ public static class DependencyInjection
         services.AddHostedService<NotificationConsumer>();
 
         // payout to instructors
-        if (env.IsDevelopment())
-        {
-            // استخدم الـ Mock في Development
-            services.AddScoped<IStripeConnectService, MockStripeConnectService>();
-        }
-        else
-        {
-            // الـ Real Stripe في Production
-            services.AddScoped<IStripeConnectService, StripeConnectService>();
-        }
+        services.AddScoped<IStripeConnectService, MockStripeConnectService>();
+
+      
 
 
         // Redis

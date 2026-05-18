@@ -14,7 +14,9 @@ public class PlatformStatsDto
     public int PendingCourses { get; set; }
 
     // Revenue
-    public decimal TotalRevenue { get; set; }
+    public decimal TotalGMV { get; set; }  // إجمالي المبيعات
+    public decimal PlatformRevenue { get; set; }  // 30% للـ Platform
+    public decimal InstructorRevenue { get; set; }  // 70% للـ Instructors
     public decimal RevenueThisMonth { get; set; }
     public double RevenueGrowthPercent { get; set; }
 
@@ -26,8 +28,8 @@ public class PlatformStatsDto
     public int TotalReviews { get; set; }
     public double AverageRating { get; set; }
 
-    // Recent
-    public IList<MonthlyRevenueDto> MonthlyRevenue { get; set; } = [];
+    // Chart
+    public List<MonthlyRevenueDto> MonthlyRevenue { get; set; } = [];
 }
 
 public class MonthlyRevenueDto

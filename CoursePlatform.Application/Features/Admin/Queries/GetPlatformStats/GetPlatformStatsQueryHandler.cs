@@ -109,22 +109,32 @@ public class GetPlatformStatsQueryHandler
 
         return new PlatformStatsDto
         {
+            // Users
             TotalUsers = allUsers.Count,
             TotalStudents = totalStudents,
             TotalInstructors = totalInstructors,
             NewUsersThisMonth = newThisMonth,
+
+            // Courses
             TotalCourses = allCourses.Count,
-            PublishedCourses = allCourses.Count(
-                c => c.Status == CourseStatus.Published),
-            PendingCourses = allCourses.Count(
-                c => c.Status == CourseStatus.UnderReview),
-            TotalRevenue = totalRevenue,
+            PublishedCourses = allCourses.Count(c => c.Status == CourseStatus.Published),
+            PendingCourses = allCourses.Count(c => c.Status == CourseStatus.UnderReview),
+
+            // Revenue ← أضيفي
+            TotalGMV = totalRevenue,
+            PlatformRevenue = Math.Round(totalRevenue * 0.30m, 2),
+            InstructorRevenue = Math.Round(totalRevenue * 0.70m, 2),
             RevenueThisMonth = revenueThisMonth,
             RevenueGrowthPercent = revenueGrowth,
+
+            // Enrollments
             TotalEnrollments = allEnrollments.Count,
             EnrollmentsThisMonth = enrollThisMonth,
+
+            // Reviews
             TotalReviews = allReviews.Count,
             AverageRating = avgRating,
+
             MonthlyRevenue = monthlyRevenue
         };
     }
