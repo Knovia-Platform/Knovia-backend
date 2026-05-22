@@ -1,5 +1,4 @@
-﻿// Infrastructure/Services/AuthService.cs
-using CoursePlatform.Application.Common.Exceptions;
+﻿using CoursePlatform.Application.Common.Exceptions;
 using CoursePlatform.Application.Contracts.Services;
 using CoursePlatform.Application.Features.Auth.Commands.ResendOtp;
 using CoursePlatform.Application.Features.Auth.DTOs;
