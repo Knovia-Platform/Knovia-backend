@@ -9,29 +9,51 @@ using MediatR;
 
 namespace CoursePlatform.Application.Features.Orders.Commands.HandlePaymentSuccess;
 
+// HandlePaymentSuccessCommandHandler.cs
 public class HandlePaymentSuccessCommandHandler
     : IRequestHandler<HandlePaymentSuccessCommand, Unit>
 {
     private readonly IUnitOfWork _uow;
     private readonly IMessagePublisher _publisher;
-    private readonly INotificationService _notificationService;  
-    private readonly IUserRepository _userRepo;             
+    private readonly INotificationService _notificationService;
+    private readonly IUserRepository _userRepo;
+    private readonly ICacheService _cache;           // add cache service
 
     public HandlePaymentSuccessCommandHandler(
         IUnitOfWork uow,
         IMessagePublisher publisher,
         INotificationService notificationService,
-        IUserRepository userRepo)
+        IUserRepository userRepo,
+        ICacheService cache)                            
     {
         _uow = uow;
         _publisher = publisher;
         _notificationService = notificationService;
         _userRepo = userRepo;
+        _cache = cache;                        
     }
 
     public async Task<Unit> Handle(
         HandlePaymentSuccessCommand request, CancellationToken ct)
     {
+        // first , add redis check
+        var cacheKey = $"webhook:pi:{request.PaymentIntentId}";
+        var alreadyProcessed = await _cache.GetAsync<string>(cacheKey, ct);
+
+        if (alreadyProcessed is not null)
+        {
+            Console.WriteLine(
+                $"[WEBHOOK] Duplicate ignored: {request.PaymentIntentId}");
+            return Unit.Value;
+        }
+
+        // set before processing on DB
+        await _cache.SetAsync(
+            cacheKey,
+            "processed",
+            TimeSpan.FromMinutes(30),
+            ct);
+
         var spec = new OrderByPaymentIntentSpec(request.PaymentIntentId);
         var order = await _uow.Repository<Order>()
                               .GetEntityWithSpecAsync(spec, ct)
@@ -59,13 +81,10 @@ public class HandlePaymentSuccessCommandHandler
 
         await _uow.CompleteAsync(ct);
 
-        // جيب الـ student للـ email
         var student = await _userRepo.GetByIdAsync(order.StudentId, ct);
-
         var courseList = string.Join(", ",
             order.OrderItems.Select(i => i.CourseTitle));
 
-        // In-app notification
         await _notificationService.SendAsync(
             userId: order.StudentId,
             title: "Enrollment Confirmed!",
@@ -76,7 +95,6 @@ public class HandlePaymentSuccessCommandHandler
             emailAddress: student?.Email,
             ct: ct);
 
-        // Instructor notification لكل course
         foreach (var item in order.OrderItems)
         {
             var course = await _uow.Repository<Course>()
@@ -92,7 +110,6 @@ public class HandlePaymentSuccessCommandHandler
                 ct: ct);
         }
 
-        // Publish event للـ RabbitMQ (للـ email confirmation)
         await _publisher.PublishAsync(new OrderCompletedEvent
         {
             OrderId = order.Id,
