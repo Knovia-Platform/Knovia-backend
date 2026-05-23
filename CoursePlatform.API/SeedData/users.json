@@ -3,7 +3,7 @@
     {
       "firstName": "Admin",
       "lastName": "System",
-      "email": "admin@guidy.com",
+      "email": "guidyplaatform@gmail.com",
       "password": "Admin@123",
       "role": "Admin",
       "bio": "Platform Administrator"
@@ -19,6 +19,8 @@
       "bio": "Senior .NET Engineer specialized in Clean Architecture and Microservices.",
       "profilePictureUrl": "https://randomuser.me/api/portraits/women/1.jpg"
     },
+
+
     {
       "firstName": "Mohamed",
       "lastName": "Hassan",
@@ -66,8 +68,8 @@
     },
     {
       "firstName": "Aya",
-      "lastName": "Samir",
-      "email": "aya.samir@guidy.com",
+      "lastName": "Selim",
+      "email": "aya.Selim@guidy.com",
       "password": "Student@123",
       "role": "Student"
     },
