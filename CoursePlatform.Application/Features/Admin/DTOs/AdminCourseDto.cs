@@ -7,6 +7,7 @@ public class AdminCourseDto
     public string InstructorName { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public decimal Price { get; set; }
+    public decimal? DiscountPrice { get; set; }
     public int Enrollments { get; set; }
     public double AverageRating { get; set; }
     public int TotalRatings { get; set; }

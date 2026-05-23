@@ -32,6 +32,7 @@ public class GetAllCoursesAdminQueryHandler
             AverageRating = c.AverageRating,
             TotalRatings = c.TotalRatings,
             RejectionReason = c.RejectionReason,
+            DiscountPrice = c.DiscountPrice,
             CreatedAt = c.CreatedAt
         }).ToList();
     }
