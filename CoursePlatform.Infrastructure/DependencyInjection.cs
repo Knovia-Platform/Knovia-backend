@@ -102,11 +102,15 @@ public static class DependencyInjection
 
         // RabbitMQ Email Consumer كـ BackgroundService
         services.AddHostedService<EmailConsumer>();
-        services.AddScoped<IFileStorageService, LocalFileStorageService>();
+
+       
 
         // File handling
         services.AddScoped<IFileTypeValidator, FileTypeValidator>();
-        services.AddScoped<IFileStorageService, LocalFileStorageService>();
+        // use Cloudinary in production, local storage in development
+        services.AddScoped<IFileStorageService, CloudinaryStorageService>();
+
+        //services.AddScoped<IFileStorageService, LocalFileStorageService>();
         // Payment
         services.AddScoped<IPaymentService, StripePaymentService>();
 
