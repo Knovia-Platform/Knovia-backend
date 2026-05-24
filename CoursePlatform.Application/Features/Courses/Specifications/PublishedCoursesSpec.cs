@@ -25,6 +25,7 @@ public class PublishedCoursesSpec : BaseSpecification<Course>
     {
         AddInclude(c => c.Instructor);
         AddInclude(c => c.SubCategory);
+        AddInclude(c => c.Enrollments);
         AddInclude("SubCategory.Category");
 
         switch (p.SortBy)

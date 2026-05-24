@@ -10,6 +10,7 @@ public class CourseByIdSpec : BaseSpecification<Course>
     {
         AddInclude(c => c.Instructor);
         AddInclude(c => c.SubCategory);
+        AddInclude(c => c.Enrollments);
         AddInclude("SubCategory.Category");
         ApplyNoTracking();
     }

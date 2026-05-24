@@ -20,8 +20,10 @@ public class CourseMappingProfile : Profile
             .ForMember(d => d.SubCategoryName,
                 o => o.MapFrom(s => s.SubCategory != null
                     ? s.SubCategory.Name : string.Empty))
-            .ForMember(d => d.AverageRating, o => o.MapFrom(_ => 0.0))
-            .ForMember(d => d.TotalStudents, o => o.MapFrom(_ => 0));
+             .ForMember(d => d.AverageRating,
+                o => o.MapFrom(s => s.AverageRating))   
+            .ForMember(d => d.TotalStudents,
+                o => o.MapFrom(s => s.Enrollments.Count)); 
 
         CreateMap<Course, CourseDto>()
             .ForMember(d => d.Level,
@@ -41,8 +43,10 @@ public class CourseMappingProfile : Profile
                 o => o.MapFrom(s => DeserializeList(s.Requirements)))
             .ForMember(d => d.WhatYouLearn,
                 o => o.MapFrom(s => DeserializeList(s.WhatYouLearn)))
-            .ForMember(d => d.AverageRating, o => o.MapFrom(_ => 0.0))
-            .ForMember(d => d.TotalStudents, o => o.MapFrom(_ => 0));
+            .ForMember(d => d.AverageRating,
+                o => o.MapFrom(s => s.AverageRating))   
+            .ForMember(d => d.TotalStudents,
+                o => o.MapFrom(s => s.Enrollments.Count));
     }
 
     private static List<string> DeserializeList(string? json)
