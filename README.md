@@ -1,10 +1,10 @@
-# Guidy Platform — Backend API
+# Knovia Platform — Backend API
 
 <div align="center">
 
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-512BD4?style=for-the-badge&logo=dotnet)
 ![C#](https://img.shields.io/badge/C%23-12.0-239120?style=for-the-badge&logo=csharp)
-![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC2927?style=for-the-badge&logo=microsoftsqlserver)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql)
 ![Redis](https://img.shields.io/badge/Redis-7.0-DC382D?style=for-the-badge&logo=redis)
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.12-FF6600?style=for-the-badge&logo=rabbitmq)
 ![Stripe](https://img.shields.io/badge/Stripe-Payments-635BFF?style=for-the-badge&logo=stripe)
@@ -20,7 +20,7 @@
 
 ## 📌 Overview
 
-Guidy Platform is a full-featured online course platform (Udemy-like) built with **ASP.NET Core 8** following **Clean Architecture** principles. It supports course creation, student enrollment, payments, subscriptions, certificates, and much more — all designed to be scalable, maintainable, and production-ready.
+Knovia Platform is a full-featured online course platform (Udemy-like) built with **ASP.NET Core 8** following **Clean Architecture** principles. It supports course creation, student enrollment, payments,  certificates, and much more — all designed to be scalable, maintainable, and production-ready.
 
 ---
 
@@ -33,7 +33,6 @@ Guidy Platform is a full-featured online course platform (Udemy-like) built with
 | 🎓 **Enrollment**        | Instant enrollment after payment, free course support        |
 | 📊 **Progress Tracking** | Lesson completion, watch-time tracking, auto-complete at 80% |
 | 💳 **Payments**          | Stripe integration, coupon system, order management          |
-| 🔄 **Subscriptions**     | Monthly/Annual plans with Stripe Recurring Payments          |
 | 📜 **Certificates**      | PDF generation (QuestPDF), unique verification codes         |
 | ⭐ **Reviews & Ratings** | Rating system with average calculation                       |
 | 🔔 **Notifications**     | In-app + Email via RabbitMQ event-driven architecture        |
@@ -64,7 +63,7 @@ Guidy Platform is a full-featured online course platform (Udemy-like) built with
 │          │                     │                    │
 │ Entities │                     │  EF Core • Redis   │
 │  Enums   │                     │  RabbitMQ • Stripe │
-│ Interfaces│                    │  QuestPDF • Email  │
+│ Interfaces│                    │  Cloudinary• Email │
 └──────────┴─────────────────────┴────────────────────┘
 ```
 
@@ -87,7 +86,7 @@ Guidy Platform is a full-featured online course platform (Udemy-like) built with
 | ----------------------- | --------------------------- |
 | ASP.NET Core 8          | Web API framework           |
 | Entity Framework Core 8 | ORM & database access       |
-| SQL Server              | Primary database            |
+| PostgreSQL              | Primary database            |
 | MediatR                 | CQRS & in-process messaging |
 | FluentValidation        | Request validation          |
 | AutoMapper              | Object mapping              |
@@ -103,6 +102,7 @@ Guidy Platform is a full-featured online course platform (Udemy-like) built with
 | QuestPDF         | PDF certificate generation             |
 | ASP.NET Identity | Authentication & authorization         |
 | JWT              | Token-based authentication             |
+| Cloudinary       | Media storage & image/file management  |
 
 ---
 
@@ -153,15 +153,15 @@ CoursePlatform/
 ### Prerequisites
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8)
-- [SQL Server](https://www.microsoft.com/en-us/sql-server) or Docker
+- [PostgreSQL](https://www.postgresql.org/) (or Docker)
 - [Redis](https://redis.io/) or Docker
 - [RabbitMQ](https://www.rabbitmq.com/) or Docker
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Guidy-Platform/guidy-backend.git
-cd guidy-backend
+git clone https://github.com/Knovia-Platform/Knovia-backend.git
+cd Knovia-backend
 ```
 
 ### 2. Configure `appsettings.json`
@@ -195,6 +195,11 @@ cd guidy-backend
     "Host": "localhost",
     "Username": "guest",
     "Password": "guest"
+  },
+  "Cloudinary": {
+    "CloudName": "",
+    "ApiKey": "",
+    "ApiSecret": ""
   }
 }
 ```
@@ -363,12 +368,6 @@ Complete all lessons (100%) → Issue Certificate
 
 The application seeds the following test data on first run (Development):
 
-| Role       | Email                         | Password       |
-| ---------- | ----------------------------- | -------------- |
-| Admin      | admin@courseplatform.com      | Admin@123      |
-| Instructor | instructor@courseplatform.com | Instructor@123 |
-| Student    | student@courseplatform.com    | Student@123    |
-
 **10 seeded courses** across categories: Web Development, Data Science, Machine Learning, Business.
 
 **4 seeded coupons:**
@@ -405,6 +404,9 @@ The application seeds the following test data on first run (Development):
 | `RabbitMQ__Host`                       | RabbitMQ host                  |
 | `Email__Username`                      | SMTP email address             |
 | `Email__Password`                      | SMTP password/app password     |
+| `Cloudinary__CloudName`                | Cloudinary account cloud name  |
+| `Cloudinary__ApiKey`                   | Cloudinary API key             |
+| `Cloudinary__ApiSecret`                | Cloudinary API secret          |
 
 ---
 
